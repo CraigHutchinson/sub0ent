@@ -1,19 +1,19 @@
 #pragma once
 
 #include <tuple>
-#include "Pool.hpp"
+#include "Collection.hpp"
 
-template <typename T, typename... Ts> struct get_index;
+template <typename T, typename... Ts> struct get_type_index;
 
 template <typename T, typename... Ts>
-struct get_index<T, T, Ts...> : std::integral_constant<std::size_t, 0U> {};
+struct get_type_index<T, T, Ts...> : std::integral_constant<std::size_t, 0U> {};
 
 template <typename T, typename Tail, typename... Ts>
-struct get_index<T, Tail, Ts...> :
-	std::integral_constant<std::size_t, 1U + get_index<T, Ts...>::value> {};
+struct get_type_index<T, Tail, Ts...> :
+	std::integral_constant<std::size_t, 1U + get_type_index<T, Ts...>::value> {};
  
 template <typename T>
-struct get_index<T>
+struct get_type_index<T>
 {
 	// condition is always false, but should be dependant of T
 	static_assert(sizeof(T) == 0U, "type not found");
@@ -37,22 +37,23 @@ namespace Sub0Ent
 	class View
 	{
 	public: 
-		static const uint32_t cComponentCount = sizeof...(Components); ///< number of components
+		static constexpr uint_fast32_t Size
+              = sizeof...(Components);  ///< number of components
 
-		typedef std::tuple< Pool<Components>&... > Pools; ///< All component pools
+		typedef std::tuple< Collection<Components>&... > Collections; ///< All component collections
 
 #if 0
-		typedef std::tuple< typename Pool<Components>::Iterator... > PoolIterators; ///< All omcponent iterators
+		typedef std::tuple< typename Collection<Components>::Iterator... > CollectionIterators; ///< All omcponent iterators
 #else
 		/// @temp Detect all iterators of same type and use std::array automatically
-		typedef std::array< typename Pool<void>::Iterator, cComponentCount > PoolIterators;
+		typedef std::array< typename Collection<void>::Iterator, Size > CollectionIterators;
 #endif
 
 		class Iterator
 		{
 		public:
-			Iterator( Pools& pools, PoolIterators&& iterators )
-			   : pools_(pools)
+			Iterator( Collections& collections, CollectionIterators&& iterators )
+			   : collections_(collections)
 				, iterators_( std::move(iterators) )
 			{
 			}
@@ -60,9 +61,9 @@ namespace Sub0Ent
 			template< typename Component>
 			Component& get()
 			{
-				static const uint32_t cComponentIndex = get_index<Component,Components...>::value; 
-				return std::get<cComponentIndex>(pools_).at( 
-					std::get<cComponentIndex>(iterators_) );
+				static const uint32_t iComponent = get_type_index<Component,Components...>::value; 
+				return std::get<iComponent>(collections_).at( 
+					std::get<iComponent>(iterators_) );
 			}
 
 			Iterator& operator++()
@@ -87,9 +88,9 @@ namespace Sub0Ent
 			operator EntityId() const
 			{ 
 				auto iSub0Entty = std::get<0U>(iterators_);
-				auto iEnd = std::get<0U>(pools_).end();
+				auto iEnd = std::get<0U>(collections_).end();
 				return (iSub0Entty != iEnd) ? iSub0Entty->first 
-										 : cInvalid_NodeId; 
+										 : cInvalid_EntityId; 
 			}
 
 			Iterator& operator*()
@@ -98,36 +99,36 @@ namespace Sub0Ent
 			}
 
 		private:
-			Pools pools_; ////< Pools from the view
-			PoolIterators iterators_;
+			Collections collections_; ////< Collections from the view
+			CollectionIterators iterators_;
 		};
 
 	public:
 		/** @note C++11 std::make_tuple
 		*/
-		View( PoolRegistry& registry )
-			: pools_( (sizeof( Components ), registry.get<Components>() )... )
+		View( CollectionRegistry& registry )
+			: collections_( (sizeof( Components ), registry.get<Components>() )... )
 		{
 		}
 
 		/** @note Uses C++14 std::get<>
 		*/
 		template< typename Component>
-		Pool<Component>& getPool()
+		Collection<Component>& getCollection()
 		{
-			static const uint32_t cComponentIndex = get_index<Component,Components...>::value;
-			return std::get<cComponentIndex>(pools_);
+			static constexpr uint_fast32_t iComponent = get_type_index<Component,Components...>::value;
+			return std::get<iComponent>(collections_);
 		}
 
 		/** TODO */
 		Iterator begin() 
-		{ return Iterator( pools_, PoolIterators( getPool<Components>().begin()...) ); }
+		{ return Iterator( collections_, CollectionIterators( getCollection<Components>().begin()...) ); }
 		
 		/** TODO */
 		Iterator end() 
-		{ return Iterator( pools_, PoolIterators( getPool<Components>().end()... )  ); }
+		{ return Iterator( collections_, CollectionIterators( getCollection<Components>().end()... )  ); }
 	private:
-		Pools pools_;
+		Collections collections_;
 	};
 
 } //END: Sub0Ent

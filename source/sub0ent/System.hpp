@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tuple>
-#include "Pool.hpp"
+#include "Collection.hpp"
 #include "View.hpp"
 
 namespace Sub0Ent
@@ -17,9 +17,9 @@ namespace Sub0Ent
 	
 	protected:
 		/** Update function called for each entity matching the system view
-		 * @param[in]  nodeId  The entity node identifier for reference		 
+		 * @param[in]  entityId  The entity entity identifier for reference		 
 		 */
-		virtual void update( const Sub0Ent::EntityId nodeId ) = 0;
+		virtual void update( const Sub0Ent::EntityId entityId ) = 0;
 	};
 
 	template< typename... Components >
@@ -28,7 +28,7 @@ namespace Sub0Ent
 	public:
 		/** @note C++11 std::make_tuple
 		*/
-		System( PoolRegistry& registry )
+		System( CollectionRegistry& registry )
 			: View( registry )
 		{
 		}

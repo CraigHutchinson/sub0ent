@@ -1,8 +1,8 @@
-#include "Enti\GlobalUniqueIndex.h"
+#include "sub0ent/GlobalUniqueIndex.hpp"
 
 #include <gtest/gtest.h>
 
-namespace Enti {
+namespace Sub0Ent {
 namespace Test 
 {	
 
@@ -50,4 +50,4 @@ namespace Test
 	};
 
 } //END: Test
-} //END: Enti
+} //END: Sub0Ent

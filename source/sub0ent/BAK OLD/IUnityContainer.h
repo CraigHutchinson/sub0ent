@@ -43,13 +43,13 @@ namespace Sub0Ent
 	} //END: Lifetime
 
 
-	class IContainer
+	class IWorld
 	{
 		typedef std::unordered_map<std::type_index, std::unique_ptr<ILifetime>> TypeIndexLookup;
 	public:
 
 		template<class BaseType, class DerivedType>
-		IContainer& registerType()
+		IWorld& registerType()
 		{
 			types_.emplace(
 				std::make_pair( std::type_index(typeid(BaseType)), std::make_unique<Lifetime<DerivedType>>() ) );

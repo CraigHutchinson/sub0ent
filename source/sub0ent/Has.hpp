@@ -3,32 +3,33 @@
 #include <cassert>
 
 #include "Entity.hpp"
+#include "World.hpp"
 
 namespace Sub0Ent
 {
 
     template< typename Component >
-    constexpr bool has(const Entity& node)
-    { return has<Component>(node.container(), node.id()); }
+    constexpr bool has(const Entity& entity)
+    { return has<Component>(entity.world(), entity.id()); }
 
     template< typename Component >
-    constexpr bool has( Container& container, EntityId nodeId)
-    { return container.has<Component>(nodeId); }
+    constexpr bool has( World& world, EntityId entityId)
+    { return world.has<Component>(entityId); }
 
     template< typename Component >
-    Component* find( const Entity& node)
-    { return find<Component>(node.container(), node.id()); }
+    Component* find( const Entity& entity)
+    { return find<Component>(entity.world(), entity.id()); }
 
     template< typename Component >
-    constexpr Component* find( Container& container, EntityId nodeId)
-    { return container.find<Component>(nodeId); }
+    constexpr Component* find( World& world, EntityId entityId)
+    { return world.find<Component>(entityId); }
 
     template< typename Component >
-    constexpr Component& get( const Entity& node)
-    { return get<Component>( node.container(), node.id() ); }
+    constexpr Component& get( const Entity& entity)
+    { return get<Component>( entity.world(), entity.id() ); }
 
     template< typename Component >
-    constexpr Component& get( Container& container, EntityId nodeId )
-    { return container.get<Component>(nodeId); }
+    constexpr Component& get( World& world, EntityId entityId )
+    { return world.get<Component>(entityId); }
 
 } //END: Sub0Ent

@@ -1,8 +1,8 @@
-#include "Enti\Mask.h"
+#include "sub0ent/Mask.hpp"
 
 #include <gtest/gtest.h>
 
-namespace Enti {
+namespace Sub0Ent {
 namespace Test 
 {
 
@@ -57,5 +57,5 @@ namespace Test
 	}
 
 } //END: Test
-} //END: Enti
+} //END: Sub0Ent
 

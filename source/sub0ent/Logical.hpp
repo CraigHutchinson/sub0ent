@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Query.hpp"
+#include "Has.hpp"
 
 namespace Sub0Ent
 {
@@ -31,8 +32,8 @@ namespace Sub0Ent
 	struct AndOp : Query
 	{
 		AndOp( const Lhs& lhs, const Rhs& rhs ) : lhs_(lhs), rhs_(rhs) {}
-		constexpr bool operator() (const Entity& node) const
-		{ return lhs_(node) && rhs_(node); }
+		constexpr bool operator() (const Entity& entity) const
+		{ return lhs_(entity) && rhs_(entity); }
 	private:
 		const Lhs lhs_;
 		const Rhs rhs_;
@@ -62,8 +63,8 @@ namespace Sub0Ent
 	struct GreaterOp : QueryValueOp<Lhs,Value>
 	{
 		GreaterOp( const Lhs& lhs, const Value& value ) : QueryValueOp(lhs,value) {}
-		constexpr bool operator() (const Entity& node) const
-		{ return false; }//lhs_(node) > value_; }
+		constexpr bool operator() (const Entity& entity) const
+		{ return false; }//lhs_(entity) > value_; }
 	};
 
 	/* Logical-greater query object '>'
@@ -82,8 +83,9 @@ namespace Sub0Ent
 	struct GreaterEqualOp : QueryValueOp<Lhs,Value>
 	{
 		GreaterEqualOp( const Lhs& lhs, const Value& value ) : QueryValueOp(lhs,value) {}
-		constexpr bool operator() (const Entity& node) const
-		{ return lhs_(node) >= value_; }
+		
+		constexpr bool operator() (const Entity& entity) const
+		{ return this->lhs_(entity) >= this->value_; }
 	};
 
 	/* Logical-greater query object '>='
@@ -101,8 +103,8 @@ namespace Sub0Ent
 	struct LessOp : QueryValueOp<Lhs,Value>
 	{
 		LessOp( const Lhs& lhs, const Value& value ) : QueryValueOp(lhs,value) {}
-		constexpr bool operator() (const Entity& node) const
-		{ return lhs_(node) < value_; }
+		constexpr bool operator() (const Entity& entity) const
+		{ return this->lhs_(entity) < this->value_; }
 	};
 
 	/* Logical-greater query object '<'
@@ -121,8 +123,8 @@ namespace Sub0Ent
 	struct LessEqualOp : QueryValueOp<Lhs,Value>
 	{
 		LessEqualOp( const Lhs& lhs, const Value& value ) : QueryValueOp(lhs,value) {}
-		constexpr bool operator() (const Entity& node) const
-		{ return lhs_(node) <= value_; }
+		constexpr bool operator() (const Entity& entity) const
+		{ return this->lhs_(entity) <= this->value_; }
 	};
 
 	/* Logical-greater query object '<='

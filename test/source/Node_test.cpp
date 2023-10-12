@@ -1,283 +1,290 @@
-#include "Enti\Node.h"
-#include "Enti\Container.h" //<NOTE: Needed for majority of tests for component storage etc!
-#include "Enti\Pools.h" //<NOTE: Needed for majority of tests for component storage etc!
-#include "Enti\Has.h"
+#include "sub0ent/Entity.hpp"
+#include "sub0ent/World.hpp" //<NOTE: Needed for majority of tests for component storage etc!
+#include "sub0ent/Collection.hpp" //<NOTE: Needed for majority of tests for component storage etc!
+#include "sub0ent/Has.hpp"
 
-#include "TestTypes.h"
+#include "TestTypes.hpp"
 #include <gtest/gtest.h>
 
-namespace Enti {
+namespace Sub0Ent {
 namespace Test 
 {
-	TEST(Node,Null)
+	TEST(Entity,Null)
 	{
-		Node nullA;
-		Node nullB( *(Container*)0, 0u );
-		Node nullC( *(Container*)3, 0u );
+		Entity nullA;
+		Entity nullB( *(World*)0, 0u );
+		Entity nullC( *(World*)3, 0u );
 
 		ASSERT_TRUE( nullA.isNull() );
 		ASSERT_TRUE( nullB.isNull() );
 		ASSERT_TRUE( nullC.isNull() );
-		ASSERT_EQ( nullA, Node() );
-		ASSERT_EQ( nullB, Node() );
-		ASSERT_EQ( nullC, Node() );
+		ASSERT_EQ( nullA, Entity() );
+		ASSERT_EQ( nullB, Entity() );
+		ASSERT_EQ( nullC, Entity() );
 		ASSERT_EQ( nullB, nullA );
 		ASSERT_EQ( nullC, nullA );
 		ASSERT_EQ( nullC, nullB );
 	}
 
-	TEST(Node,NotNull)
+	TEST(Entity,NotNull)
 	{
-		Node node( *(Container*)456, 123U );
-		ASSERT_FALSE( node.isNull() );
+		Entity entity( *(World*)456, 123U );
+		ASSERT_FALSE( entity.isNull() );
 	}
 
-	TEST(Node,ConstructId)
+	TEST(Entity,ConstructId)
 	{
-		Node node( *(Container*)456, 123U );
-		ASSERT_EQ( 123U, node.id() );
+		Entity entity( *(World*)456, 123U );
+		ASSERT_EQ( 123U, entity.id() );
 	}
 
-	TEST(Node,Equality)
+	TEST(Entity,Equality)
 	{
-		Node node( *(Container*)456, 123U );
-		ASSERT_EQ( Node(*(Container*)456, 123U), node );
-		ASSERT_NE( Node(*(Container*)456, 124U), node );
-		ASSERT_NE( Node(*(Container*)455, 123U), node );
+		Entity entity( *(World*)456, 123U );
+		ASSERT_EQ( Entity(*(World*)456, 123U), entity );
+		ASSERT_NE( Entity(*(World*)456, 124U), entity );
+		ASSERT_NE( Entity(*(World*)455, 123U), entity );
 	}
 
-	TEST(Node,CopyConstruct)
+	TEST(Entity,CopyConstruct)
 	{
-		Node node( *(Container*)456, 123U );
-		Node nodeB( node ); //< Node handle - Has reference to container i.e. struct{ uint32_t, Container& }
-		ASSERT_EQ(nodeB, node);
+		Entity entity( *(World*)456, 123U );
+		Entity entityB( entity ); //< Entity handle - Has reference to world i.e. struct{ uint32_t, World& }
+		ASSERT_EQ(entityB, entity);
 	}
 
-	TEST(Node,CopyAssignment)
+	TEST(Entity,CopyAssignment)
 	{
-		Node node( *(Container*)456, 123U );
-		Node nodeC;
-		nodeC = node;
-		ASSERT_EQ(nodeC, node);
+		Entity entity( *(World*)456, 123U );
+		Entity entityC;
+		entityC = entity;
+		ASSERT_EQ(entityC, entity);
 	}
 	
-	TEST(Node,Has)
+	TEST(Entity,Has)
 	{
-		Container container;
-		Pools<Human,Health,Hat> pools(container);
-		Node node = container.create(Human(), Health(100), Hat());
+		World world;
+		Collection<Human,Health,Hat> collections(world);
+		Entity entity = world.create(Human(), Health(100), Hat());
 
 		//Member
-		ASSERT_TRUE( node.has<Health>() );
-		ASSERT_TRUE( node.has<Human>() );
-		ASSERT_TRUE( node.has<Hat>() );
-		ASSERT_FALSE( node.has<Shoes>() );
+		ASSERT_TRUE( entity.has<Health>() );
+		ASSERT_TRUE( entity.has<Human>() );
+		ASSERT_TRUE( entity.has<Hat>() );
+		ASSERT_FALSE( entity.has<Shoes>() );
 
 		//Global
-		ASSERT_TRUE( has<Health>(node) );
-		ASSERT_TRUE( has<Human>(node) );
-		ASSERT_TRUE( has<Hat>(node) );
-		ASSERT_FALSE( has<Shoes>(node) );
+		ASSERT_TRUE( has<Health>(entity) );
+		ASSERT_TRUE( has<Human>(entity) );
+		ASSERT_TRUE( has<Hat>(entity) );
+		ASSERT_FALSE( has<Shoes>(entity) );
 
 		//Global handle
-		ASSERT_TRUE( has<Health>(container,node.id()) );
-		ASSERT_TRUE( has<Human>(container,node.id()) );
-		ASSERT_TRUE( has<Hat>(container,node.id()) );
-		ASSERT_FALSE( has<Shoes>(container,node.id()) );
+        EntityId entityId = entity;
+		ASSERT_TRUE( has<Health>(world,entityId) );
+        ASSERT_TRUE( has<Human>(world, entityId) );
+		ASSERT_TRUE( has<Hat>(world,entityId) );
+		ASSERT_FALSE( has<Shoes>(world,entityId) );
 	}
 
-	TEST(Node,Get)
+	TEST(Entity,Get)
 	{
-		Container container;
-		Pools<Human,Health,Hat> pools(container);
-		Node node = container.create(Human(), Health(100), Hat());
+		World world;
+		Collection<Human,Health,Hat> collections(world);
+		const Entity entity = world.create(Human(), Health(100), Hat());
+		const EntityId entityId = entity;
 
-		//Member
-		ASSERT_NE( nullptr, &node.get<Human>() );
-		ASSERT_NE( nullptr, &node.get<Health>() );
-		ASSERT_NE( nullptr, &node.get<Hat>() );
-
+		//Entity
+		ASSERT_NE( nullptr, &entity.get<Human>() );
+		ASSERT_NE( nullptr, &entity.get<Health>() );
+		ASSERT_NE( nullptr, &entity.get<Hat>() );
+		
 		//Global
-		ASSERT_NE( nullptr, &get<Human>(node) );
-		ASSERT_NE( nullptr, &get<Health>(node) );
-		ASSERT_NE( nullptr, &get<Hat>(node) );
+		ASSERT_NE( nullptr, &get<Human>(entity) );
+		ASSERT_NE( nullptr, &get<Health>(entity) );
+		ASSERT_NE( nullptr, &get<Hat>(entity) );
+
+		//World
+		ASSERT_NE( nullptr, &world.get<Human>(entityId) );
+		ASSERT_NE( nullptr, &world.get<Health>(entityId) );
+		ASSERT_NE( nullptr, &world.get<Hat>(entityId) );
 
 		//Global handle
-		ASSERT_NE( nullptr, &get<Human>(container,node.id()) );
-		ASSERT_NE( nullptr, &get<Health>(container,node.id()) );
-		ASSERT_NE( nullptr, &get<Hat>(container,node.id()) );
+		ASSERT_NE( nullptr, &get<Human>(world,entityId) );
+		ASSERT_NE( nullptr, &get<Health>(world,entityId) );
+		ASSERT_NE( nullptr, &get<Hat>(world,entityId) );
 
 		//Verify that the same objects returned on all interfaces
- 		ASSERT_EQ( &get<Human>(node), &node.get<Human>() );
-		ASSERT_EQ( &node.get<Human>(), &get<Human>(container,node.id()) );
+ 		ASSERT_EQ( &get<Human>(entity), &entity.get<Human>() );
+		ASSERT_EQ( &entity.get<Human>(), &get<Human>(world,entity.id()) );
 	}
 
-	TEST(Node,GetHasCorrectValue)
+	TEST(Entity,GetHasCorrectValue)
 	{
 		float cHealthPercent = rand() * (100.0f/float(RAND_MAX)); //< Random to ensure component memory initialised
 
-		Container container;
-		Pools<Health> pools(container.poolRegistry());
-		Node node = container.create( Health(cHealthPercent) );
+		World world;
+		Collection<Health> collections(world.collectionRegistry());
+		Entity entity = world.create( Health(cHealthPercent) );
 
-		ASSERT_EQ( cHealthPercent, node.get<Health>().percent );
+		ASSERT_EQ( cHealthPercent, entity.get<Health>().percent );
 	}
 
-	TEST(Node,Find)
+	TEST(Entity,Find)
 	{
-		Container container;
-		Pools<Human,Health,Hat> pools(container);
-		Node node = container.create(Human(), Health(100), Hat());
+		World world;
+		Collection<Human,Health,Hat> collections(world);
+		Entity entity = world.create(Human(), Health(100), Hat());
 
 		//Member
-		ASSERT_NE( nullptr, node.find<Human>() );
-		ASSERT_NE( nullptr, node.find<Health>() );
-		ASSERT_NE( nullptr, node.find<Hat>() );
-		ASSERT_EQ( nullptr, node.find<Shoes>() );
+		ASSERT_NE( nullptr, entity.find<Human>() );
+		ASSERT_NE( nullptr, entity.find<Health>() );
+		ASSERT_NE( nullptr, entity.find<Hat>() );
+		ASSERT_EQ( nullptr, entity.find<Shoes>() );
 
 		//Global
-		ASSERT_NE( nullptr, find<Human>(node) );
-		ASSERT_NE( nullptr, find<Health>(node) );
-		ASSERT_NE( nullptr, find<Hat>(node) );
-		ASSERT_EQ( nullptr, find<Shoes>(node) );
+		ASSERT_NE( nullptr, find<Human>(entity) );
+		ASSERT_NE( nullptr, find<Health>(entity) );
+		ASSERT_NE( nullptr, find<Hat>(entity) );
+		ASSERT_EQ( nullptr, find<Shoes>(entity) );
 
 		//Global handle
-		ASSERT_NE( nullptr, find<Human>(container,node.id()) );
-		ASSERT_NE( nullptr, find<Health>(container,node.id()) );
-		ASSERT_NE( nullptr, find<Hat>(container,node.id()) );
-		ASSERT_EQ( nullptr, find<Shoes>(container,node.id()) );
+		ASSERT_NE( nullptr, find<Human>(world,entity.id()) );
+		ASSERT_NE( nullptr, find<Health>(world,entity.id()) );
+		ASSERT_NE( nullptr, find<Hat>(world,entity.id()) );
+		ASSERT_EQ( nullptr, find<Shoes>(world,entity.id()) );
 
 		//Verify that the same objects returned on all interfaces
-		ASSERT_EQ( find<Human>(node), node.find<Human>() );
-		ASSERT_EQ( node.find<Human>(), find<Human>(container,node.id()) );
+		ASSERT_EQ( find<Human>(entity), entity.find<Human>() );
+		ASSERT_EQ( entity.find<Human>(), find<Human>(world,entity.id()) );
 	}
 
-	TEST(Node,FindHasCorrectValue)
+	TEST(Entity,FindHasCorrectValue)
 	{
 		const float cHealthPercent = rand() * (100.0f/float(RAND_MAX)); //< Random to ensure component memory initialised
 		const float cHealthPercentB = rand() * (100.0f/float(RAND_MAX));
 		const float cShoeSize = rand() / 100.0F;
 		const float cShoeSizeB = rand() / 100.0F;
 
-		Container container;
-		Pools<Health,Shoes> pools(container);
-		Node node = container.create( Health(cHealthPercent), Shoes(cShoeSize) );
-		Node nodeB = container.create( Health(cHealthPercentB), Shoes(cShoeSizeB) );
+		World world;
+		Collection<Health,Shoes> collections(world);
+		Entity entity = world.create( Health(cHealthPercent), Shoes(cShoeSize) );
+		Entity entityB = world.create( Health(cHealthPercentB), Shoes(cShoeSizeB) );
 
-		ASSERT_EQ( cHealthPercent, node.find<Health>()->percent);
-		ASSERT_EQ( cShoeSize, node.find<Shoes>()->size);
+		ASSERT_EQ( cHealthPercent, entity.find<Health>()->percent);
+		ASSERT_EQ( cShoeSize, entity.find<Shoes>()->size);
 
-		ASSERT_EQ( cHealthPercentB, nodeB.find<Health>()->percent);
-		ASSERT_EQ( cShoeSizeB, nodeB.find<Shoes>()->size);
+		ASSERT_EQ( cHealthPercentB, entityB.find<Health>()->percent);
+		ASSERT_EQ( cShoeSizeB, entityB.find<Shoes>()->size);
 	}
 
-	TEST(Node,GetInvalid_Throws)
+	TEST(Entity,GetInvalid_Throws)
 	{
-		Container container;
-		Node node = container.create();
+		World world;
+		Entity entity = world.create();
 
 		//Member
-		ASSERT_THROW( node.get<Shoes>(), std::invalid_argument );
+		ASSERT_THROW( entity.get<Shoes>(), std::invalid_argument );
 
 		//Global
-		ASSERT_THROW( get<Health>(node), std::invalid_argument );
+		ASSERT_THROW( get<Health>(entity), std::invalid_argument );
 
 		//Global handle
-		ASSERT_THROW( get<Hat>(container,node.id()), std::invalid_argument );
+		ASSERT_THROW( get<Hat>(world,entity.id()), std::invalid_argument );
 	}
 
-	TEST(Node,Add)
+	TEST(Entity,Add)
 	{
-		Container container;
-		Pools<Human,Health,Hat,Shoes> pools(container.poolRegistry());
-		Node node = container.create(Human());
+		World world;
+		Collection<Human,Health,Hat,Shoes> collections(world.collectionRegistry());
+		Entity entity = world.create(Human());
 
-		ASSERT_TRUE( has<Human>(node) );
-		ASSERT_FALSE( has<Health>(node) );
-		ASSERT_FALSE( has<Hat>(node) );
-		ASSERT_FALSE( has<Shoes>(node) );
+		ASSERT_TRUE( has<Human>(entity) );
+		ASSERT_FALSE( has<Health>(entity) );
+		ASSERT_FALSE( has<Hat>(entity) );
+		ASSERT_FALSE( has<Shoes>(entity) );
 
-		node.add( Health(100) );
-		ASSERT_TRUE( has<Human>(node) );
-		ASSERT_TRUE( has<Health>(node) );
-		ASSERT_FALSE( has<Hat>(node) );
-		ASSERT_FALSE( has<Shoes>(node) );
+		entity.add( Health(100) );
+		ASSERT_TRUE( has<Human>(entity) );
+		ASSERT_TRUE( has<Health>(entity) );
+		ASSERT_FALSE( has<Hat>(entity) );
+		ASSERT_FALSE( has<Shoes>(entity) );
 
-		add( node, Hat() );
-		ASSERT_TRUE( has<Human>(node) );
-		ASSERT_TRUE( has<Health>(node) );
-		ASSERT_TRUE( has<Hat>(node) );
-		ASSERT_FALSE( has<Shoes>(node) );
+		add( entity, Hat() );
+		ASSERT_TRUE( has<Human>(entity) );
+		ASSERT_TRUE( has<Health>(entity) );
+		ASSERT_TRUE( has<Hat>(entity) );
+		ASSERT_FALSE( has<Shoes>(entity) );
 
-		add( container, node.id(), Shoes(9) );
-		ASSERT_TRUE( has<Human>(node) );
-		ASSERT_TRUE( has<Health>(node) );
-		ASSERT_TRUE( has<Hat>(node) );
-		ASSERT_TRUE( has<Shoes>(node) );
+		add( world, entity.id(), Shoes(9) );
+		ASSERT_TRUE( has<Human>(entity) );
+		ASSERT_TRUE( has<Health>(entity) );
+		ASSERT_TRUE( has<Hat>(entity) );
+		ASSERT_TRUE( has<Shoes>(entity) );
 	}
 
 
-	TEST(Node,AddHasCorrectValue)
+	TEST(Entity,AddHasCorrectValue)
 	{
 		float cHealthPercent = rand() * (100.0f/float(RAND_MAX)); //< Random to ensure component memory initialised
 		float cHealthShoeSize = rand() * (12.0f/float(RAND_MAX)); //< Random to ensure component memory initialised
 
-		Container container;
-		Pools<Health,Shoes> pools(container.poolRegistry());
-		Node node = container.create();
+		World world;
+		Collection<Health,Shoes> collections(world.collectionRegistry());
+		Entity entity = world.create();
 
-		node.add( Health(cHealthPercent) );
-		ASSERT_EQ( cHealthPercent, get<Health>(node).percent );
+		entity.add( Health(cHealthPercent) );
+		ASSERT_EQ( cHealthPercent, get<Health>(entity).percent );
 
-		add( container, node.id(), Shoes(cHealthShoeSize) );
-		ASSERT_EQ( cHealthShoeSize, get<Shoes>(node).size );
+		add( world, entity.id(), Shoes(cHealthShoeSize) );
+		ASSERT_EQ( cHealthShoeSize, get<Shoes>(entity).size );
 	}
 
 	/*
-	TEST(Node,GetMore)
+	TEST(Entity,GetMore)
 	{
-	Container container;
-	Pools<Human,Health,Hat> pools(container.poolRegistry());
-	Node node = container.create(Human(), Health(cHealthPercent), Hat());
+	World world;
+	Collection<Human,Health,Hat> collections(world.collectionRegistry());
+	Entity entity = world.create(Human(), Health(cHealthPercent), Hat());
 
-	std::tuple<Human,Health,Hat> hhh = get<Human,Health,Hat>(node);
+	std::tuple<Human,Health,Hat> hhh = get<Human,Health,Hat>(entity);
 	}*/
 	/*
-	TEST_METHOD(Container_Get)
+	TEST_METHOD(World_Get)
 	{
 	const float cHealthPercent = cHealthPercent;
 
-	Container container;
-	Pools<Human,Health,Hat> pools(container.poolRegistry());
-	(void)container.create(Human(), Health(cHealthPercent), Hat());
-	(void)container.create(Human(), Health(cHealthPercent) );
-	(void)container.create(Human());
+	World world;
+	Collection<Human,Health,Hat> collections(world.collectionRegistry());
+	(void)world.create(Human(), Health(cHealthPercent), Hat());
+	(void)world.create(Human(), Health(cHealthPercent) );
+	(void)world.create(Human());
 
-	ASSERT_EQ( get<Human>(container).size(), 3u );
-	ASSERT_EQ( get<Health>(container).size(), 2u );
-	ASSERT_EQ( get<Hat>(container).size(), 1 );
-	ASSERT_EQ( get<Shoes>(container).size(), 0u );
+	ASSERT_EQ( get<Human>(world).size(), 3u );
+	ASSERT_EQ( get<Health>(world).size(), 2u );
+	ASSERT_EQ( get<Hat>(world).size(), 1 );
+	ASSERT_EQ( get<Shoes>(world).size(), 0u );
 
 
-	ASSERT_EQ( get<Health>(container)[0].percent, cHealthPercent );
+	ASSERT_EQ( get<Health>(world)[0].percent, cHealthPercent );
 	}
 	*/
 
 	/*
-	TEST_METHOD(ContainerHasSingle)
+	TEST_METHOD(WorldHasSingle)
 	{
-	Container container;
-	Pools<Human,Health,Hat> pools(container.poolRegistry());
-	Node node = container.create(Human(), Health(cHealthPercent), Hat());
+	World world;
+	Collection<Human,Health,Hat> collections(world.collectionRegistry());
+	Entity entity = world.create(Human(), Health(cHealthPercent), Hat());
 
 	using Has;
 
-	auto result = (container % has<Glasses>());
+	auto result = (world % has<Glasses>());
 	ASSERT_TRUE(result);
 	ASSERT_TRUE(result.size() == 1u);
-	ASSERT_TRUE(result[0] == node);
+	ASSERT_TRUE(result[0] == entity);
 	}*/
 
 
 } //END: Test
-} //END: Enti
+} //END: Sub0Ent

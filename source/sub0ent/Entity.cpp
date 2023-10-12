@@ -1,8 +1,8 @@
 
 #include "Entity.hpp"
 
-#include "Container.hpp" //<NOTE: Needed for majority of tests for component storage etc!
-#include "Pools.hpp" //<NOTE: Needed for majority of tests for component storage etc!
+#include "World.hpp" //<NOTE: Needed for majority of tests for component storage etc!
+#include "Collection.hpp" //<NOTE: Needed for majority of tests for component storage etc!
 #include "Has.hpp"
 
 
@@ -10,21 +10,21 @@ namespace Sub0Ent
 {
 
 	Entity::Entity() 
-		: container_(nullptr)
+		: world_(nullptr)
 		, id_(0)
 	{}
 
-	Entity::Entity(Container& container, EntityId id) 
-		: container_(&container)
+	Entity::Entity(World& world, EntityId id) 
+		: world_(&world)
 		, id_(id)
 	{}
 
 	
-	Container& Entity::container() const
+	World& Entity::world() const
 	{
-		if ( container_ == nullptr )
-			throw std::runtime_error( "Entity::container_ == nullptr" );
-		return *container_;
+		if ( world_ == nullptr )
+			throw std::runtime_error( "Entity::world_ == nullptr" );
+		return *world_;
 	}
 
 

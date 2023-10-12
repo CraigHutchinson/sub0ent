@@ -1,47 +1,47 @@
-#include "Enti/Container.h"
-#include "Enti/Pool.h"
-#include "Enti/Pools.h"
-#include "Enti/View.h"
+#include "Sub0Ent/World.hpp"
+#include "Sub0Ent/Collection.hpp"
+#include "Sub0Ent/Collection.hpp"
+#include "Sub0Ent/View.hpp"
 
-#include "TestTypes.h"
+#include "TestTypes.hpp"
 #include <gtest/gtest.h>
 
 
-namespace Enti {	
+namespace Sub0Ent {	
 	namespace Test {
 
-		TEST( View, GetPool )
+		TEST( View, GetCollection )
 		{
-			PoolRegistry registry;
-			Pool<Human> humanPool(registry);
-			Pool<Health> healthPool(registry);
-			Pool<Hat> hatPool(registry);
+			CollectionRegistry registry;
+			Collection<Human> humanCollection(registry);
+			Collection<Health> healthCollection(registry);
+			Collection<Hat> hatCollection(registry);
 
 			View<Health, Human, Hat> humanHealthHatView(registry);
-			ASSERT_EQ( &humanHealthHatView.getPool<Human>(), &humanPool );
-			ASSERT_EQ( &humanHealthHatView.getPool<Health>(), &healthPool );
-			ASSERT_EQ( &humanHealthHatView.getPool<Hat>(), &hatPool );
+			ASSERT_EQ( &humanHealthHatView.getCollection<Human>(), &humanCollection );
+			ASSERT_EQ( &humanHealthHatView.getCollection<Health>(), &healthCollection );
+			ASSERT_EQ( &humanHealthHatView.getCollection<Hat>(), &hatCollection );
 		}
 
-		TEST(View,GetPool_Throws)
+		TEST(View,GetCollection_Throws)
 		{
-			PoolRegistry registry;
+			CollectionRegistry registry;
 			ASSERT_THROW( View<Human> humanView(registry), std::invalid_argument );
 		}
 
 
 		TEST( View, Begin_Empty )
 		{
-			Container registry;
-			Pools<Human,Health,Hat> pools(registry);
+			World registry;
+			Collection<Human,Health,Hat> collections(registry);
 			View<Health, Human, Hat> view(registry);
 			ASSERT_EQ( view.begin(), view.end() );
 		}
 
 		TEST( View, Begin_NotEmpty )
 		{
-			Container registry;
-			Pools<Human,Health,Hat> pools(registry);
+			World registry;
+			Collection<Human,Health,Hat> collections(registry);
 			(void)registry.create( Human(), Health(100.0F), Hat() );
 
 			View<Health, Human, Hat> view(registry);
@@ -50,8 +50,8 @@ namespace Enti {
 
 		TEST( View, Begin_HasPartial )
 		{
-			Container registry;
-			Pools<Human,Health,Hat> pools(registry);
+			World registry;
+			Collection<Human,Health,Hat> collections(registry);
 			View<Health, Human, Hat> view(registry);
 			(void)registry.create( Human(), Health(100.0F)/* , Hat() -- Missing hat! */ );
 			ASSERT_EQ( view.begin(), view.end() );
@@ -59,8 +59,8 @@ namespace Enti {
 
 		TEST( View, Begin_NotCompleteOptional )
 		{
-			Container registry;
-			Pools<Human,Health,Hat> pools(registry);
+			World registry;
+			Collection<Human,Health,Hat> collections(registry);
 			View<Health, Human, Hat*> view(registry); //< Hat is optional with '*'
 			(void)registry.create( Human(), Health(100.0F)/* , Hat() -- Missing hat! */ );
 			ASSERT_EQ( view.begin(), view.end() );
@@ -68,17 +68,17 @@ namespace Enti {
 
 		TEST( View, Intersect2 )
 		{
-			Container container;
-			Pools<Human,Hat> pools(container);
-			View<Human,Hat> view(container); 
+			World world;
+			Collection<Human,Hat> collections(world);
+			View<Human,Hat> view(world); 
 
-			for ( NodeId humanId : { 1, 2, 3, 4, 5, 8, 9 } ) container.add( humanId, Human() );
-			for ( NodeId hatId   : { 1, 5, 6, 7, 8, 9 } ) container.add( hatId, Hat() );
+			for ( EntityId humanId : { 1, 2, 3, 4, 5, 8, 9 } ) world.add( humanId, Human() );
+			for ( EntityId hatId   : { 1, 5, 6, 7, 8, 9 } ) world.add( hatId, Hat() );
 			
 			auto iEntity = view.begin();
-			for ( NodeId nodeId : { 1, 5, 8, 9 } )
+			for ( EntityId entityId : { 1, 5, 8, 9 } )
 			{
-				EXPECT_EQ( nodeId, *iEntity );
+				EXPECT_EQ( entityId, *iEntity );
 				++iEntity;
 			}
 			EXPECT_EQ( view.end(), ++iEntity );
@@ -86,18 +86,18 @@ namespace Enti {
 
 		TEST( View, Intersect3 )
 		{
-			Container container;
-			Pools<Human,Hat,Health> pools(container);
-			View<Human,Hat,Health> view(container); 
+			World world;
+			Collection<Human,Hat,Health> collections(world);
+			View<Human,Hat,Health> view(world); 
 
-			for ( NodeId humanId  : { 1, 2, 3, 4, 5, 8 } ) container.add( humanId, Human() );
-			for ( NodeId hatId    : { 3, 5, 6, 7, 8, 9, 10 } ) container.add( hatId, Hat() );
-			for ( NodeId healthId : { 1, 3, 5, 8, 9 } ) container.add( healthId, Health(100.0F) );
+			for ( EntityId humanId  : { 1, 2, 3, 4, 5, 8 } ) world.add( humanId, Human() );
+			for ( EntityId hatId    : { 3, 5, 6, 7, 8, 9, 10 } ) world.add( hatId, Hat() );
+			for ( EntityId healthId : { 1, 3, 5, 8, 9 } ) world.add( healthId, Health(100.0F) );
 
 			auto iEntity = view.begin();
-			for ( NodeId nodeId : {  3, 5, 8 } )
+			for ( EntityId entityId : {  3, 5, 8 } )
 			{
-				EXPECT_EQ( nodeId, *iEntity );
+				EXPECT_EQ( entityId, *iEntity );
 				++iEntity;
 			}
 			EXPECT_EQ( view.end(), ++iEntity );
@@ -105,23 +105,23 @@ namespace Enti {
 
 		TEST( View, Intersect4 )
 		{
-			Container container;
-			Pools<Human,Hat,Health,Glasses> pools(container);
-			View<Human,Hat,Health,Glasses> view(container); 
+			World world;
+			Collection<Human,Hat,Health,Glasses> collections(world);
+			View<Human,Hat,Health,Glasses> view(world); 
 
-			for ( NodeId humanId  : { 1, 2, 3, 4, 5, 7, 9 } ) container.add( humanId, Human() );
-			for ( NodeId hatId    : { 3, 5, 6, 7, 8, 9 } ) container.add( hatId, Hat() );
-			for ( NodeId healthId : { 1, 3, 7, 9, 10 } ) container.add( healthId, Health(100.0F) );
-			for ( NodeId glassId  : { 3, 4, 6, 7, 8, 9, 11 } ) container.add( glassId, Glasses() );
+			for ( EntityId humanId  : { 1, 2, 3, 4, 5, 7, 9 } ) world.add( humanId, Human() );
+			for ( EntityId hatId    : { 3, 5, 6, 7, 8, 9 } ) world.add( hatId, Hat() );
+			for ( EntityId healthId : { 1, 3, 7, 9, 10 } ) world.add( healthId, Health(100.0F) );
+			for ( EntityId glassId  : { 3, 4, 6, 7, 8, 9, 11 } ) world.add( glassId, Glasses() );
 
 			auto iEntity = view.begin();
-			for ( NodeId nodeId : {  3, 7, 9 } )
+			for ( EntityId entityId : {  3, 7, 9 } )
 			{
-				EXPECT_EQ( nodeId, *iEntity );
+				EXPECT_EQ( entityId, *iEntity );
 				++iEntity;
 			}
 			EXPECT_EQ( view.end(), ++iEntity );
 		}
 
 	} //END: Test
-} //END: Enti
+} //END: Sub0Ent

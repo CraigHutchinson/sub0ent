@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.14...3.22)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/..")
+
 project(Sub0EntTests LANGUAGES CXX)
 
 # ---- Options ----
@@ -9,26 +11,36 @@ option(TEST_INSTALLED_VERSION "Test the version found by find_package" OFF)
 
 # --- Import tools ----
 
-include(../cmake/tools.cmake)
+include(tools)
 
 # ---- Dependencies ----
 
-include(../cmake/CPM.cmake)
+include(CPM)
 
-CPMAddPackage("gh:doctest/doctest@2.4.9")
+
+find_package(GTest)
+# TODO: Change to DocTest as looks faster!
+#CPMAddPackage("gh:doctest/doctest@2.4.9")
+
 CPMAddPackage("gh:TheLartians/Format.cmake@1.7.3")
 
-if(TEST_INSTALLED_VERSION)
-  find_package(Sub0Ent REQUIRED)
-else()
-  CPMAddPackage(NAME Sub0Ent SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
+if ( NOT TARGET Sub0Ent )
+    if(TEST_INSTALLED_VERSION)
+      find_package(Sub0Ent REQUIRED)
+    else()
+      CPMAddPackage(NAME Sub0Ent SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
+    endif()
 endif()
 
 # ---- Create binary ----
 
 file(GLOB sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
 add_executable(${PROJECT_NAME} ${sources})
-target_link_libraries(${PROJECT_NAME} doctest::doctest Sub0Ent::Sub0Ent)
+target_link_libraries(${PROJECT_NAME} 
+    #doctest::doctest 
+    GTest::Main
+    Sub0Ent::Sub0Ent
+)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
 # enable compiler warnings
@@ -49,8 +61,10 @@ enable_testing()
 # testing frameworks add the tests target instead: add_test(NAME ${PROJECT_NAME} COMMAND
 # ${PROJECT_NAME})
 
-include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
-doctest_discover_tests(${PROJECT_NAME})
+#include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
+#doctest_discover_tests(${PROJECT_NAME})
+
+gtest_discover_tests(${PROJECT_NAME})
 
 # ---- code coverage ----
 

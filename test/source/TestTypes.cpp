@@ -1,6 +1,6 @@
-#include "TestTypes.h"
+#include "TestTypes.hpp"
 
-#include "CppUnitTest.h"
+#include "CppUnitTest.hpp"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 template<> std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<Human>(const Human& inputValue)
@@ -10,8 +10,8 @@ template<> std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString<
 
 
 
-namespace Enti {
+namespace Sub0Ent {
 namespace Test 
 {
 } //END: Test
-} //END: Enti
+} //END: Sub0Ent

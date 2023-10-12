@@ -1,8 +1,8 @@
-#include "Enti\FreeIndexList.h"
+#include "sub0ent/FreeIndexList.hpp"
 
 #include <gtest/gtest.h>
 
-namespace Enti {
+namespace Sub0Ent {
 namespace Test 
 {
 
@@ -52,4 +52,4 @@ namespace Test
 	};
 
 } //END: Test
-} //END: Enti
+} //END: Sub0Ent

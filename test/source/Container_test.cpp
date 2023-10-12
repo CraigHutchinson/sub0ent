@@ -1,39 +1,39 @@
-#include "Enti/Container.h"
-#include "Enti/Pool.h"
-#include "Enti/Has.h"
-#include "Enti/Query.h"
-#include "Enti/Logical.h"
+#include "Sub0Ent/World.hpp"
+#include "Sub0Ent/Collection.hpp"
+#include "Sub0Ent/Has.hpp"
+#include "Sub0Ent/Query.hpp"
+#include "Sub0Ent/Logical.hpp"
 
-#include "TestTypes.h"
+#include "TestTypes.hpp"
 #include <gtest/gtest.h>
 
 
-namespace Enti {	
+namespace Sub0Ent {	
 namespace Test {
 		
-	TEST( Container, CreateNode)
+	TEST( World, CreateEntity)
 	{
-		Container container;
-		Node node = container.create();
-		Node nodeB = container.create();
-		ASSERT_FALSE( node.isNull() );
-		ASSERT_NE( Node(), node );
-		ASSERT_NE( node, nodeB );
+		World world;
+		Entity entity = world.create();
+		Entity entityB = world.create();
+		ASSERT_FALSE( entity.isNull() );
+		ASSERT_NE( Entity(), entity );
+		ASSERT_NE( entity, entityB );
 	}
 
 	/*
-	TEST( Container, Has)
+	TEST( World, Has)
 	{
 
-	Container container;
-	Pools<Human,Health,Hat> pools(container.poolRegistry());
-	(void)container.create(Human(), Health(cHealthPercent), Hat());
+	World world;
+	Collection<Human,Health,Hat> collections(world.collectionRegistry());
+	(void)world.create(Human(), Health(cHealthPercent), Hat());
 
-	ASSERT_TRUE( has<Health>(container) );
-	ASSERT_TRUE( has<Human>(container) );
-	ASSERT_TRUE( has<Hat>(container) );
-	ASSERT_FALSE( has<Shoes>(container) );
+	ASSERT_TRUE( has<Health>(world) );
+	ASSERT_TRUE( has<Human>(world) );
+	ASSERT_TRUE( has<Hat>(world) );
+	ASSERT_FALSE( has<Shoes>(world) );
 	}*/
 
 } //END: Test
-} //END: Enti
+} //END: Sub0Ent

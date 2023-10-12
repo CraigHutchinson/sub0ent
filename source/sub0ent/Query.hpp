@@ -20,18 +20,18 @@ namespace Sub0Ent
 	/* Query operator function
 	*/
 	template<class QueryObject >
-	bool query( const Entity& node, const QueryObject& queryObject = QueryObject() )
+	bool query( const Entity& entity, const QueryObject& queryObject = QueryObject() )
 	{ 
 		static_assert(IsQuery<QueryObject>::value == true, "Not a Query type" );
-		return queryObject(node); 
+		return queryObject(entity); 
 	}
 
 	/* Query operator '%'
 	*/
 	template<class QueryObject>
-	bool operator % (const Entity& node, const QueryObject& rhs)
+	bool operator % (const Entity& entity, const QueryObject& rhs)
 	{
-		return query( node, rhs );
+		return query( entity, rhs );
 	}
 
 } //END: Sub0Ent

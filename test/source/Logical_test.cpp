@@ -1,13 +1,13 @@
-#include "Enti\Logical.h"
+#include "sub0ent/Logical.hpp"
 
-#include "Enti\Container.h" //<NOTE: Needed for majority of tests for component storage etc!
-#include "Enti\Pools.h" //<NOTE: Needed for majority of tests for component storage etc!
-#include "Enti\Has.h"
+#include "sub0ent/World.hpp" //<NOTE: Needed for majority of tests for component storage etc!
+#include "sub0ent/Collection.hpp" //<NOTE: Needed for majority of tests for component storage etc!
+#include "sub0ent/Has.hpp"
 
-#include "TestTypes.h"
+#include "TestTypes.hpp"
 #include <gtest/gtest.h>
 
-namespace Enti {
+namespace Sub0Ent {
 namespace Test 
 {
 
@@ -16,101 +16,101 @@ TEST_CLASS(Logical_Test)
 public:
 	TEST_METHOD(LogicalQuery_Has)
 	{
-		Container container;
-		Pools<Human> pools(container.poolRegistry());
-		Node node = container.create(Human());
+		World world;
+		Collection<Human> collections(world.collectionRegistry());
+		Entity entity = world.create(Human());
 
-		ASSERT_TRUE( node % Has<Human>() );
-		ASSERT_TRUE( query( node, Has<Human>() ) );
+		ASSERT_TRUE( entity % Has<Human>() );
+		ASSERT_TRUE( query( entity, Has<Human>() ) );
 	}
 
 	TEST_METHOD(LogicalQuery_AndHas)
 	{
-		Container container;
-		Pools<Human,Health,Hat> pools(container.poolRegistry());
-		Node node = container.create(Human(), Health(100), Hat());
+		World world;
+		Collection<Human,Health,Hat> collections(world.collectionRegistry());
+		Entity entity = world.create(Human(), Health(100), Hat());
 
-		ASSERT_TRUE(node % (Has<Human>() && Has<Health>()) );
-		ASSERT_TRUE(node % (Has<Health>() && Has<Human>()));
-		ASSERT_TRUE(node % (Has<Human>() && Has<Health>() && Has<Hat>()) );
-		ASSERT_TRUE(node % (Has<Health>() && Has<Hat>() && Has<Human>()) );
+		ASSERT_TRUE(entity % (Has<Human>() && Has<Health>()) );
+		ASSERT_TRUE(entity % (Has<Health>() && Has<Human>()));
+		ASSERT_TRUE(entity % (Has<Human>() && Has<Health>() && Has<Hat>()) );
+		ASSERT_TRUE(entity % (Has<Health>() && Has<Hat>() && Has<Human>()) );
 
-		ASSERT_FALSE(node % Has<Glasses>());
-		ASSERT_FALSE(node % (Has<Glasses>() && Has<Human>()) );
-		ASSERT_FALSE(node % (Has<Glasses>() && Has<Hat>() && Has<Human>()) );
+		ASSERT_FALSE(entity % Has<Glasses>());
+		ASSERT_FALSE(entity % (Has<Glasses>() && Has<Human>()) );
+		ASSERT_FALSE(entity % (Has<Glasses>() && Has<Hat>() && Has<Human>()) );
 	}
 
 	TEST_METHOD(LogicalQuery_Object)
 	{
-		Container container;
-		Pools<Human,Health,Hat> pools(container.poolRegistry());
-		Node nodeA = container.create(Human(), Health(100), Hat());
-		Node nodeB = container.create(Human(), Hat());
+		World world;
+		Collection<Human,Health,Hat> collections(world.collectionRegistry());
+		Entity entityA = world.create(Human(), Health(100), Hat());
+		Entity entityB = world.create(Human(), Hat());
 
 		auto hasCheck = (Has<Human>() && Has<Health>());
-		ASSERT_TRUE(nodeA % hasCheck);
-		ASSERT_TRUE( query(nodeA, hasCheck) );
-		ASSERT_FALSE(nodeB % hasCheck);
-		ASSERT_FALSE( query(nodeB, hasCheck) );
+		ASSERT_TRUE(entityA % hasCheck);
+		ASSERT_TRUE( query(entityA, hasCheck) );
+		ASSERT_FALSE(entityB % hasCheck);
+		ASSERT_FALSE( query(entityB, hasCheck) );
 	}
 
 	TEST_METHOD(LogicalQuery_AndGreater)
 	{
-		Container container;
-		Pools<Human,Health,Hat> pools(container.poolRegistry());
-		Node node = container.create(Human(), Health(100), Hat());
+		World world;
+		Collection<Human,Health,Hat> collections(world.collectionRegistry());
+		Entity entity = world.create(Human(), Health(100), Hat());
 
-		ASSERT_TRUE(node % (Has<Human>() && (Has<Health>() > 99)) );
-		ASSERT_FALSE(node % (Has<Human>() && (Has<Health>() > 100)) );
+		ASSERT_TRUE(entity % (Has<Human>() && (Has<Health>() > 99)) );
+		ASSERT_FALSE(entity % (Has<Human>() && (Has<Health>() > 100)) );
 	}
 
 
 	TEST_METHOD(LogicalQuery_AndGreaterEqual)
 	{
-		Container container;
-		Pools<Human,Health,Hat> pools(container.poolRegistry());
-		Node node = container.create(Human(), Health(100), Hat());
+		World world;
+		Collection<Human,Health,Hat> collections(world.collectionRegistry());
+		Entity entity = world.create(Human(), Health(100), Hat());
 
-		ASSERT_TRUE(node % (Has<Human>() && (Has<Health>() >= 100)) );
-		ASSERT_FALSE(node % (Has<Human>() && (Has<Health>() >= 101)) );
+		ASSERT_TRUE(entity % (Has<Human>() && (Has<Health>() >= 100)) );
+		ASSERT_FALSE(entity % (Has<Human>() && (Has<Health>() >= 101)) );
 	}
 
 	TEST_METHOD(LogicalQuery_AndLess)
 	{
-		Container container;
-		Pools<Human,Health,Hat> pools(container.poolRegistry());
-		Node node = container.create(Human(), Health(100), Hat());
-		ASSERT_TRUE(node % (Has<Human>() && (Has<Health>() < 101)) );
-		ASSERT_FALSE(node % (Has<Human>() && (Has<Health>() < 100)) );
+		World world;
+		Collection<Human,Health,Hat> collections(world.collectionRegistry());
+		Entity entity = world.create(Human(), Health(100), Hat());
+		ASSERT_TRUE(entity % (Has<Human>() && (Has<Health>() < 101)) );
+		ASSERT_FALSE(entity % (Has<Human>() && (Has<Health>() < 100)) );
 	}
 
 	TEST_METHOD(LogicalQuery_AndLessEqual)
 	{
-		Container container;
-		Pools<Human,Health,Hat> pools(container.poolRegistry());
-		Node node = container.create(Human(), Health(100), Hat());
+		World world;
+		Collection<Human,Health,Hat> collections(world.collectionRegistry());
+		Entity entity = world.create(Human(), Health(100), Hat());
 		auto query = (Has<Human>() && (Has<Health>() <= 100));
-		ASSERT_TRUE(node % query );
+		ASSERT_TRUE(entity % query );
 		auto queryFalse = (Has<Human>() && (Has<Health>() <= 99));
-		ASSERT_FALSE(node % queryFalse );
+		ASSERT_FALSE(entity % queryFalse );
 	}
 
 	/*
-	TEST_METHOD(ContainerHasSingle)
+	TEST_METHOD(WorldHasSingle)
 	{
-	Container container;
-	Pools<Human,Health,Hat> pools(container.poolRegistry());
-	Node node = container.create(Human(), Health(cHealthPercent), Hat());
+	World world;
+	Collection<Human,Health,Hat> collections(world.collectionRegistry());
+	Entity entity = world.create(Human(), Health(cHealthPercent), Hat());
 
 	using Has;
 
-	auto result = (container % has<Glasses>());
+	auto result = (world % has<Glasses>());
 	ASSERT_TRUE(result);
 	ASSERT_TRUE(result.size() == 1u);
-	ASSERT_TRUE(result[0] == node);
+	ASSERT_TRUE(result[0] == entity);
 	}*/
 
 };
 
 } //END: Test
-} //END: Enti
+} //END: Sub0Ent

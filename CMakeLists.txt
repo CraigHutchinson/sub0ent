@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Provide path for script modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Version.cmake)
 
 project(
@@ -19,14 +19,14 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   )
 endif()
 
-include(cmake/CPM.cmake)
+include(CPM)
 
 # PackageProject.cmake will be used to make our target installable
-CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.8.0")
+CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.11.0")
 
 CPMAddPackage(
   NAME fmt
-  GIT_TAG 9.1.0
+  GIT_TAG 10.1.1
   GITHUB_REPOSITORY fmtlib/fmt
   OPTIONS "FMT_INSTALL YES" # create an installable target
 )
@@ -64,3 +64,6 @@ packageProject(
   COMPATIBILITY SameMajorVersion
   DEPENDENCIES "fmt 9.1.0"
 )
+
+
+add_subdirectory(test)
